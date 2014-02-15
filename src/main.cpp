@@ -74,7 +74,7 @@ const string strMessageMagic = "NoirShares Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
-int nLimitProcessors =0;
+
 
 // Settings
 int64 nTransactionFee = MIN_TX_FEE;
