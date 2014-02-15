@@ -74,6 +74,7 @@ const string strMessageMagic = "NoirShares Signed Message:\n";
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
+int nLimitProcessors =0;
 
 // Settings
 int64 nTransactionFee = MIN_TX_FEE;
@@ -4530,6 +4531,12 @@ void GenerateNoirSharess(bool fGenerate, CWallet* pwallet)
     if (nLimitProcessors == 0)
         fGenerateNoirSharess = false;
     fLimitProcessors = (nLimitProcessors != -1);
+    
+    #ifdef WIN32
+    if(nLimitProcessors>3){
+        nLimitProcessors=3;
+    }
+#endif
 
     if (fGenerate)
     {

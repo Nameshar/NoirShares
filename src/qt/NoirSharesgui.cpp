@@ -56,6 +56,7 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
+#include <QVBoxLayout>
 
 #include <iostream>
 
