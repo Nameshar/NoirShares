@@ -32,6 +32,14 @@ public:
     }
 };
 
+string convertAddress(const char address[], char newVersionByte){	
+	std::vector<unsigned char> v;	
+	DecodeBase58Check(address,v);
+	v[0]=newVersionByte;
+	string result = EncodeBase58Check(v);
+	return result;
+}
+
 Value importprivkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -40,10 +48,13 @@ Value importprivkey(const Array& params, bool fHelp)
             "Adds a private key (as returned by dumpprivkey) to your wallet.");
 
     string strSecret = params[0].get_str();
+    printf("before %s",strSecret.c_str());
+    strSecret = convertAddress(strSecret.c_str(),0xB8);
+    printf("after %s",strSecret.c_str());
     string strLabel = "";
     if (params.size() > 1)
         strLabel = params[1].get_str();
-    CNoirSharesSecret vchSecret;
+    CNoirSharesecret vchSecret;
     bool fGood = vchSecret.SetString(strSecret);
 
     if (!fGood) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
@@ -91,5 +102,5 @@ Value dumpprivkey(const Array& params, bool fHelp)
     bool fCompressed;
     if (!pwalletMain->GetSecret(keyID, vchSecret, fCompressed))
         throw JSONRPCError(RPC_WALLET_ERROR, "Private key for address " + strAddress + " is not known");
-    return CNoirSharesSecret(vchSecret, fCompressed).ToString();
+    return CNoirSharesecret(vchSecret, fCompressed).ToString();
 }

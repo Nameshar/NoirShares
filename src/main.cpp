@@ -72,9 +72,8 @@ CScript COINBASE_FLAGS;
 
 const string strMessageMagic = "NoirShares Signed Message:\n";
 
-double dHashesPerSec;
+double dhashespermin;
 int64 nHPSTimerStart;
-
 
 // Settings
 int64 nTransactionFee = MIN_TX_FEE;
@@ -3919,6 +3918,24 @@ public:
     }
 };
 
+/*std::map<std::string,int64> getGenesisBalances(){
+	std::map<std::string,int64> genesisBalances;
+	// PTS
+	ifstream myfile ("genesisbalances.txt");
+	char * pEnd;
+	std::string line;
+	if (myfile.is_open()){
+		while ( myfile.good() ){
+			getline (myfile,line);
+			std::vector<std::string> strs;
+			boost::split(strs, line, boost::is_any_of(","));
+			genesisBalances[strs[0]]=strtoll(strs[1].c_str(),&pEnd,10);
+		}
+		myfile.close();
+	}	
+	return genesisBalances;
+}*/
+
 // CreateNewBlock:
 //   fProofOfStake: try (best effort) to make a proof-of-stake block
 CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
@@ -3935,6 +3952,26 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake)
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
     txNew.vout.resize(1);
+    printf("Create Block, %d\n",pindexBest->nHeight+1); 
+    /*
+    if(pindexBest->nHeight+1==4000){
+	//Block 4k - add balances for beta testers, protoshares
+    	std::map<std::string,int64> genesisBalances= getGenesisBalances();
+	std::map<std::string,int64>::iterator balit;
+	int i=1;
+	int64 total=0;
+	txNew.vout.resize(genesisBalances.size()+1);
+	for(balit=genesisBalances.begin(); balit!=genesisBalances.end(); ++balit){
+		//printf("gb:%s,%llu",balit->first.c_str(),balit->second);
+		CNoirSharesAddress address(balit->first);
+		txNew.vout[i].scriptPubKey.SetDestination( address.Get() );
+		txNew.vout[i].nValue = balit->second;
+		total=total+balit->second;
+		i++;
+	}
+	printf("Total ...%llu\n",total);  
+	} */
+	
     txNew.vout[0].scriptPubKey << reservekey.GetReservedKey() << OP_CHECKSIG;
 
     // Add our coinbase tx as first transaction
@@ -4314,7 +4351,7 @@ bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 
 void static ThreadNoirSharesMiner(void* parg);
 
-static bool fGenerateNoirSharess = false;
+static bool fGenerateNoirShares = false;
 static bool fLimitProcessors = false;
 static int nLimitProcessors = -1;
 
@@ -4330,7 +4367,7 @@ void NoirSharesMiner(CWallet *pwallet, bool fProofOfStake)
     CReserveKey reservekey(pwallet);
     unsigned int nExtraNonce = 0;
 
-    while (fGenerateNoirSharess || fProofOfStake)
+    while (fGenerateNoirShares || fProofOfStake)
     {
         if (fShutdown)
             return;
@@ -4339,7 +4376,7 @@ void NoirSharesMiner(CWallet *pwallet, bool fProofOfStake)
             Sleep(1000);
             if (fShutdown)
                 return;
-            if ((!fGenerateNoirSharess) && !fProofOfStake)
+            if ((!fGenerateNoirShares) && !fProofOfStake)
                 return;
         }
 
@@ -4460,14 +4497,14 @@ void NoirSharesMiner(CWallet *pwallet, bool fProofOfStake)
                     LOCK(cs);
                     if (GetTimeMillis() - nHPSTimerStart > 4000*60)
                     {
-                        dHashesPerSec = 1000.0 * nHashCounter*60 / (GetTimeMillis() - nHPSTimerStart);
+                        dhashespermin = 1000.0 * nHashCounter*60 / (GetTimeMillis() - nHPSTimerStart);
                         nHPSTimerStart = GetTimeMillis();
                         nHashCounter = 0;
                         static int64 nLogTime;
                         if (GetTime() - nLogTime > 30 * 60)
                         {
                             nLogTime = GetTime();
-                            printf("hashmeter %3d CPUs %6.0f khash/s\n", vnThreadsRunning[THREAD_MINER], dHashesPerSec/1000.0);
+                            printf("hashmeter %3d CPUs %6.0f khash/s\n", vnThreadsRunning[THREAD_MINER], dhashespermin/1000.0);
                         }
                     }
                 }
@@ -4476,7 +4513,7 @@ void NoirSharesMiner(CWallet *pwallet, bool fProofOfStake)
             // Check for stop or if block needs to be rebuilt
             if (fShutdown)
                 return;
-            if (!fGenerateNoirSharess)
+            if (!fGenerateNoirShares)
                 return;
             if (fLimitProcessors && vnThreadsRunning[THREAD_MINER] > nLimitProcessors)
                 return;
@@ -4519,24 +4556,18 @@ void static ThreadNoirSharesMiner(void* parg)
     }
     nHPSTimerStart = 0;
     if (vnThreadsRunning[THREAD_MINER] == 0)
-        dHashesPerSec = 0;
+        dhashespermin = 0;
     printf("ThreadNoirSharesMiner exiting, %d threads remaining\n", vnThreadsRunning[THREAD_MINER]);
 }
 
 
-void GenerateNoirSharess(bool fGenerate, CWallet* pwallet)
+void GenerateNoirShares(bool fGenerate, CWallet* pwallet)
 {
-    fGenerateNoirSharess = fGenerate;
+    fGenerateNoirShares = fGenerate;
     nLimitProcessors = GetArg("-genproclimit", -1);
     if (nLimitProcessors == 0)
-        fGenerateNoirSharess = false;
+        fGenerateNoirShares = false;
     fLimitProcessors = (nLimitProcessors != -1);
-    
-    #ifdef WIN32
-    if(nLimitProcessors>3){
-        nLimitProcessors=3;
-    }
-#endif
 
     if (fGenerate)
     {
@@ -4544,7 +4575,7 @@ void GenerateNoirSharess(bool fGenerate, CWallet* pwallet)
         printf("%d processors\n", nProcessors);
         if (nProcessors < 1)
             nProcessors = 1;
-        if (fLimitProcessors && nProcessors > nLimitProcessors)
+        if (nProcessors > nLimitProcessors)
             nProcessors = nLimitProcessors;
         int nAddThreads = nProcessors - vnThreadsRunning[THREAD_MINER];
         printf("Starting %d NoirSharesMiner threads\n", nAddThreads);

@@ -88,11 +88,6 @@ private:
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
-    QAction *miningOffAction;
-    QAction *miningOneAction;
-    QAction *miningTwoAction;
-    QAction *miningThreeAction;
-    QAction *miningFourAction;
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
 
@@ -180,12 +175,7 @@ private slots:
     /** simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
     
-    void miningOff();
-    void miningOn(int processes);
-    void miningOne();
-    void miningTwo();
-    void miningThree();
-    void miningFour();
+    
 };
 
 #endif

@@ -399,7 +399,7 @@ bool inline CNoirSharesAddressVisitor::operator()(const CScriptID &id) const    
 bool inline CNoirSharesAddressVisitor::operator()(const CNoDestination &id) const { return false; }
 
 /** A base58-encoded secret key */
-class CNoirSharesSecret : public CBase58Data
+class CNoirSharesecret : public CBase58Data
 {
 public:
     void SetSecret(const CSecret& vchSecret, bool fCompressed)
@@ -447,12 +447,12 @@ public:
         return SetString(strSecret.c_str());
     }
 
-    CNoirSharesSecret(const CSecret& vchSecret, bool fCompressed)
+    CNoirSharesecret(const CSecret& vchSecret, bool fCompressed)
     {
         SetSecret(vchSecret, fCompressed);
     }
 
-    CNoirSharesSecret()
+    CNoirSharesecret()
     {
     }
 };

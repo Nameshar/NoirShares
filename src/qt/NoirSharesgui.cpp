@@ -56,7 +56,6 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
-#include <QVBoxLayout>
 
 #include <iostream>
 
@@ -66,11 +65,6 @@ NoirSharesGUI::NoirSharesGUI(QWidget *parent):
     walletModel(0),
     encryptWalletAction(0),
     changePassphraseAction(0),
-    miningOffAction(0),
-    miningOneAction(0),
-    miningTwoAction(0),
-    miningThreeAction(0),
-    miningFourAction(0),
     aboutQtAction(0),
     trayIcon(0),
     notificator(0),
@@ -262,21 +256,6 @@ void NoirSharesGUI::createActions()
     backupWalletAction->setToolTip(tr("Backup wallet to another location"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
-    miningOffAction = new QAction(QIcon(":/icons/mining"), tr("Switch Mining Off"), this);
-    miningOffAction->setStatusTip(tr("Stop Mining. May take some time to wind down."));
-    //miningOffAction->setMenuRole(QAction::PreferencesRole);
-    miningOneAction = new QAction(QIcon(":/icons/mining"), tr("Mine 1 Process (1GB Required)"), this);
-    miningOneAction->setStatusTip(tr("Mine ProtoShares with 1 process. 1GB Required. Program may crash if insufficient memory is available."));
-    //miningOneAction->setMenuRole(QAction::PreferencesRole);
-    miningTwoAction = new QAction(QIcon(":/icons/mining"), tr("Mine 2 Processes (1.75GB Required)"), this);
-    miningTwoAction->setStatusTip(tr("Mine ProtoShares with 2 processes. 1.75GB Required. Program may crash if insufficient memory is available."));
-    //miningTwoAction->setMenuRole(QAction::PreferencesRole);
-    miningThreeAction = new QAction(QIcon(":/icons/mining"), tr("Mine 3 Processes (2.5GB Required)"), this);
-    miningThreeAction->setStatusTip(tr("Mine ProtoShares with 3 processes. 2.5GB Required. Program may crash if insufficient memory is available."));
-    //miningThreeAction->setMenuRole(QAction::PreferencesRole);
-    miningFourAction = new QAction(QIcon(":/icons/mining"), tr("Mine 4 Processes (3.25GB Required)"), this);
-    miningFourAction->setStatusTip(tr("Mine ProtoShares with 4 processes. 3.25GB Required. Program may crash if insufficient memory is available."));
-    //miningFourAction->setMenuRole(QAction::PreferencesRole);
     signMessageAction = new QAction(QIcon(":/icons/edit"), tr("Sign &message..."), this);
     verifyMessageAction = new QAction(QIcon(":/icons/transaction_0"), tr("&Verify message..."), this);
 
@@ -285,9 +264,7 @@ void NoirSharesGUI::createActions()
     openRPCConsoleAction = new QAction(QIcon(":/icons/debugwindow"), tr("&Debug window"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
 	
-	createMenuBar();
-	
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
@@ -295,11 +272,6 @@ void NoirSharesGUI::createActions()
     connect(encryptWalletAction, SIGNAL(triggered(bool)), this, SLOT(encryptWallet(bool)));
     connect(backupWalletAction, SIGNAL(triggered()), this, SLOT(backupWallet()));
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
-    connect(miningOffAction, SIGNAL(triggered()), this, SLOT(miningOff()));
-    connect(miningOneAction, SIGNAL(triggered()), this, SLOT(miningOne()));
-    connect(miningTwoAction, SIGNAL(triggered()), this, SLOT(miningTwo()));
-    connect(miningThreeAction, SIGNAL(triggered()), this, SLOT(miningThree()));
-    connect(miningFourAction, SIGNAL(triggered()), this, SLOT(miningFour()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
 }
@@ -327,16 +299,7 @@ void NoirSharesGUI::createMenuBar()
     settings->addAction(encryptWalletAction);
     settings->addAction(changePassphraseAction);
     settings->addSeparator();
-    settings->addAction(miningOffAction);
-    settings->addAction(miningOneAction);
-    settings->addAction(miningTwoAction);
-    settings->addAction(miningThreeAction);
-    #ifndef WIN32
-    settings->addAction(miningFourAction);
-    #endif
-    settings->addSeparator();
-    settings->addAction(optionsAction);
-
+   
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
     help->addSeparator();
@@ -914,19 +877,3 @@ void NoirSharesGUI::toggleHidden()
     showNormalIfMinimized(true);
 }
 
-void NoirSharesGUI::miningOff()
- {
- mapArgs["-genproclimit"] = "0";
- GenerateNoirSharess(true, pwalletMain);
- }
- 
- void NoirSharesGUI::miningOn(int processes)
- {
- mapArgs["-genproclimit"] = itostr(processes);
- GenerateNoirSharess(true, pwalletMain);
- }
- 
- void NoirSharesGUI::miningOne(){miningOn(1);}
- void NoirSharesGUI::miningTwo(){miningOn(2);}
- void NoirSharesGUI::miningThree(){miningOn(3);}
- void NoirSharesGUI::miningFour(){miningOn(4);}

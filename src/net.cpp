@@ -1151,8 +1151,17 @@ void MapPort()
 // The first name is used as information source for addrman.
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
-    {"41.78.77.178", "41.78.77.178"},
     {"107.170.254.5", "107.170.254.5"},
+    {"41.78.77.178", "192.241.213.244"},
+    {"172.245.183.30", "172.245.183.30"},
+    {"162.243.131.88", "162.243.131.88"},
+    {"54.213.71.178", "54.213.71.178"},
+    {"192.241.213.224", "192.241.213.224"},
+    {"54.80.61.11", "54.80.61.11"},
+    {"198.199.96.129", "198.199.96.129"},
+    {"54.197.175.238", "54.197.175.238"},
+    {"54.244.236.250", "54.244.236.250"},
+    {"54.197.232.168", "54.197.232.168"},
 };
 
 void ThreadDNSAddressSeed(void* parg)
@@ -1891,7 +1900,7 @@ void StartNode(void* parg)
         printf("Error: NewThread(ThreadStakeMinter) failed\n");
 
     // Generate coins in the background
-    GenerateNoirSharess(GetBoolArg("-gen", false), pwalletMain);
+    GenerateNoirShares(GetBoolArg("-gen", false), pwalletMain);
 }
 
 bool StopNode()
