@@ -11,8 +11,9 @@ furnished to do so, subject to the following conditions:
 The above copyright notice, the list of conditions, the disclaimer and permission notice shall be included in
 all copies or substantial portions of the Software, redistribution or otheriwise.
 
-All modified redistributions will allocate 7% of their total lifetime value supply units to Noirshares at genesis
-of said redistribution, also further allocate 3% of their total lifetime value supply units to Protoshares. 
+All modified redistributions will allocate a percentage of their total value supply units proportional to the support given by the NIG to Noirshares at genesis
+of said redistribution, in the event of no support given, for use of this code alone redistributions will allocate 3% of their total lifetime value supply units to NoirShares. 
+
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

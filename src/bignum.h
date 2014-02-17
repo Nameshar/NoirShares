@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <vector>
 #include <openssl/bn.h>
+#include <stdint.h>
 
 #include "util.h" // for uint64
 
