@@ -74,6 +74,7 @@ const string strMessageMagic = "NoirShares Signed Message:\n";
 
 double dhashespermin;
 int64 nHPSTimerStart;
+int nThreads =0;
 
 // Settings
 int64 nTransactionFee = MIN_TX_FEE;
@@ -4560,30 +4561,28 @@ void static ThreadNoirSharesMiner(void* parg)
     printf("ThreadNoirSharesMiner exiting, %d threads remaining\n", vnThreadsRunning[THREAD_MINER]);
 }
 
+static boost::thread_group* minerThreads = NULL;
 
 void GenerateNoirShares(bool fGenerate, CWallet* pwallet)
 {
-    fGenerateNoirShares = fGenerate;
-    nLimitProcessors = GetArg("-genproclimit", -1);
-    if (nLimitProcessors == 0)
-        fGenerateNoirShares = false;
-    fLimitProcessors = (nLimitProcessors != -1);
+    if (nThreads==0){
+		//Changing nThreads
+		nThreads = GetArg("-genproclimit", -1);
+		if (nThreads < 0){
+			nThreads = boost::thread::hardware_concurrency();
+		}
 
-    if (fGenerate)
-    {
-        int nProcessors = boost::thread::hardware_concurrency();
-        printf("%d processors\n", nProcessors);
-        if (nProcessors < 1)
-            nProcessors = 1;
-        if (nProcessors > nLimitProcessors)
-            nProcessors = nLimitProcessors;
-        int nAddThreads = nProcessors - vnThreadsRunning[THREAD_MINER];
-        printf("Starting %d NoirSharesMiner threads\n", nAddThreads);
-        for (int i = 0; i < nAddThreads; i++)
-        {
-            if (!NewThread(ThreadNoirSharesMiner, pwallet))
-                printf("Error: NewThread(ThreadNoirSharesMiner) failed\n");
-            Sleep(10);
-        }
-    }
+		srand (time(NULL));
+		minerThreads = new boost::thread_group();
+		minerThreads->create_thread(boost::bind(&NoirSharesMiner, pwallet, rand()));
+
+    }else{
+		//Mining is on, changing nThreads
+		nThreads = GetArg("-genproclimit", -1);
+		if (nThreads < 0){
+			nThreads = boost::thread::hardware_concurrency();
+		}
+	}
+    
 }
+
