@@ -60,68 +60,6 @@ string sha256(string line) {
     return output;
 }
 
-Value importmemorywallet(const Array& params, bool fHelp)
-{
-    if (fHelp || params.size() < 1 || params.size() > 3)
-        throw runtime_error(
-            "importmemorywallet <memorywalletkey> [label] [rescan=true]\n"
-            "Adds a MemoryWallet address to your wallet.");
-    
-    string strSecret = params[0].get_str();
-    std::string hex = sha256(strSecret);
-    hex="15"+hex;
-    std::stringstream ss;
-    std::vector<unsigned char> hexCh;
-    unsigned int buffer;
-    int offset = 0; 
-    while (offset < hex.length()) {
-        ss.clear();
-        ss << std::hex << hex.substr(offset, 2);
-        ss >> buffer;
-        hexCh.push_back(static_cast<unsigned char>(buffer));
-        offset += 2;
-    }
-
-
-    strSecret=EncodeBase58Check(hexCh);
-    
-    string strLabel = "";
-    if (params.size() > 1)
-        strLabel = params[1].get_str();
-
-    // Whether to perform rescan after import
-    bool fRescan = true;
-    if (params.size() > 2)
-        fRescan = params[2].get_bool();
-
-    CNoirSharesecret vchSecret;
-    bool fGood = vchSecret.SetString(strSecret);
-
-    if (!fGood) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid BTS private key");
-
-    CKey key;
-    bool fCompressed;
-    CSecret secret = vchSecret.GetSecret(fCompressed);
-    key.SetSecret(secret, fCompressed);
-    CKeyID vchAddress = key.GetPubKey().GetID();
-    {
-        LOCK2(cs_main, pwalletMain->cs_wallet);
-
-        pwalletMain->MarkDirty();
-        pwalletMain->SetAddressBookName(vchAddress, strLabel);
-
-        if (!pwalletMain->AddKey(key))
-            throw JSONRPCError(RPC_WALLET_ERROR, "Error adding key to wallet");
-	
-        if (fRescan) {
-            pwalletMain->ScanForWalletTransactions(pindexGenesisBlock, true);
-            pwalletMain->ReacceptWalletTransactions();
-        }
-    }
-
-    return "Imported Memory Wallet";
-}
-
 Value importprivkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
